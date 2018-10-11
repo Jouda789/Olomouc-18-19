@@ -41,23 +41,7 @@ public class Rectangle {
 		
 		java.util.Arrays.sort(distancesOfLines);
 		
-		double[] distancesOfPoints = {
-				p.distance(this.a),
-				p.distance(this.b),
-				p.distance(this.c),
-				p.distance(this.d),			
-		};
+		return distancesOfLines[0];
 		
-		java.util.Arrays.sort(distancesOfPoints);
-		
-		if (distancesOfPoints[0] > distancesOfLines[0]) {
-			double h = distancesOfPoints[0];
-			for(int k = 0; k < distancesOfLines.length; k++) { //tady by to slo prochazet lepe
-				if (distancesOfLines[k] > h) return distancesOfLines[k];
-				
-			}
-		} else 
-			return distancesOfLines[0];
-		  return 0;
 	}
 }
