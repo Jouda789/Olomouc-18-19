@@ -1,6 +1,6 @@
 (defclass point ()
-((x :initform 0)
- (y :initform 0)))
+((x :initform -1)
+ (y :initform 1)))
 
 (defclass ellipse ()
 ((focal-point-1 :initform (make-instance 'point))
@@ -19,15 +19,12 @@
        (x1 (slot-value bod1 'x))
        (y1 (slot-value bod1 'y))
        (x2 (slot-value bod2 'x))
-       (y2 (slot-value bod2 'y))
+       (y2 (slot-value bod2 'y)))
        (stred (make-instance 'point))
-       (x3 (slot-value stred 'x))
-       (y3 (slot-value stred 'x))
-       (eccentr 0))        
-    (setf x3 (/ (- x2 x1) 2))
-    (setf y3 (/ (- y2 y1) 2))
-    (setf eccentr (sqrt (+ (* (- x1 x3)(- x1 x3))(* (- y1 y3)(- y1 y3)))))
-    eccentr))
+        
+;;;;dodelat
+
+)
 
 (defmethod focal-point-1 ((el ellipse))
   (slot-value el 'focal-point-1))
@@ -56,7 +53,7 @@
                (setf x value)
                (setf pomocnaPromenna x))) 
   (set-minor-semiaxis ellipse (sqrt (- (* pomocnaPromenna pomocnaPromenna)
-                        (* (get-eccentricity ellipse) (get-eccentricity ellipse)))))))
+                        (* (focal-point-1 ellipse) (focal-point-1 ellipse)))))))
 
 (defmethod set-minor-semiaxis ((ellipse ellipse) value)
 (let ((x (slot-value ellipse 'semiaxis-1))
