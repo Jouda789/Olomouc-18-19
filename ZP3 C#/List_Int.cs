@@ -1,9 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-//using System.Array;
-using System.Threading.Tasks;
 
 namespace ConsoleApp6
 {
@@ -17,7 +12,6 @@ namespace ConsoleApp6
         {
             get => this.storage[index];
             set => this.storage[index] = value;
-
         }
 
         public ListInt(int capacity = MinCapacity)
@@ -26,24 +20,42 @@ namespace ConsoleApp6
             this.storage = new int[Math.Max(capacity, MinCapacity)];
         }
 
-        private void EnsureSize(int size){
-       if (this.storage.Length < size)
-       Array.Resize(ref this.storage, Math.Max(size, this.Count * 2));
+        private void EnsureSize(int size)
+        {
+            if (this.storage.Length < size)
+                Array.Resize(ref this.storage, Math.Max(size, this.Count * 2));
         }
 
-       //public void Add(int item)
-       
+        public void Add(int item)
+        {
+            this.EnsureSize(this.Count + 1);
+            this.storage[this.Count] = item;
+            this.Count++;
+        }
+
         public bool Insert(int item, int index)
         {
             if (index < 0 || index > this.Count)
                 return false;
 
             this.EnsureSize(this.Count + 1);
+
             if (this.Count > 0)
             {
-              //  for (var i)
+                for (var i = this.Count - 1; i >= index; i--)
+                    this.storage[i + 1] = this.storage[i];
             }
+            this.storage[index] = item;
+            this.Count++;
             return true;
+        }
+    }
+
+    class MainClass
+    {
+        public static void Main(string[] args)
+        {
+            Console.WriteLine("ahoj");
         }
     }
 }

@@ -1,1 +1,1 @@
-"# Olomouc-18-19" 
+Repozitář sloužící především k ukládání úkolu ze ZP a OOP

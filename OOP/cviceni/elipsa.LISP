@@ -49,14 +49,16 @@
  (let ((x (slot-value ellipse 'semiaxis-1))
       (y (slot-value ellipse 'semiaxis-2))
       (pomocnaPromenna 0))
-  (if (< x y) (progn
+    (progn
+      (if (< x y) (progn
                (setf y value)
                (setf pomocnaPromenna y))
              (progn
                (setf x value)
-               (setf pomocnaPromenna x))) 
+               (setf pomocnaPromenna x)))
+
   (set-minor-semiaxis ellipse (sqrt (- (* pomocnaPromenna pomocnaPromenna)
-                        (* (get-eccentricity ellipse) (get-eccentricity ellipse)))))))
+                        (* (get-eccentricity ellipse) (get-eccentricity ellipse))))))))
 
 (defmethod set-minor-semiaxis ((ellipse ellipse) value)
 (let ((x (slot-value ellipse 'semiaxis-1))
