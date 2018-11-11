@@ -11,9 +11,10 @@ UPRAVENÉ ZDĚDĚNÉ VLASTNOSTI
 
 NOVÉ VLASTNOSTI
 
-semaphore-type         typ semaforu :vehicle nebo :pedestrian
-semaphore-phase        aktuální stav semaforu
+semaphore-type         typ semaforu :vehicle nebo :pedestrian (čtení i zápis)
+semaphore-phase        aktuální stav semaforu (čtení i zápis)
 phase-count            počet fází semaforu (pouze pro čtení)
+lights                 světla semaforu (pouze pro čtení)
 
 UPRAVENÉ ZDĚDĚNÉ ZPRÁVY
 
@@ -33,13 +34,14 @@ které můžeme nastavit program a přepínat její fáze.
 
 UPRAVENÉ ZDĚDĚNÉ VLASTNOSTI
 
-set-items             slouží k nastavení objektů v křižovatce, automatiky aktualizuje vlastnost semaphores
+žádné
 
 NOVÉ VLASTNOSTI
 
-crossroads-phase      aktuální stav křižovatky
+items                 slouží k nastavení objektů v křižovatce (čtení i zápis)
+crossroads-phase      aktuální stav křižovatky (čtení i zápis)
 phase-count           počet fází křižovatky (pouze pro čtení)
-program               program křižovatky, který řídí semafory
+program               program křižovatky, který řídí semafory (čtení i zápis)
 semaphores            seznam semaforů (pouze pro čtení)
 
 UPRAVENÉ ZDĚDĚNÉ ZPRÁVY
@@ -71,7 +73,7 @@ next-phase            přepne křižovatku do následujího stavu
   (setf (slot-value s 'types) value))
 
 (defmethod s-type ((s semaphore) typename)
-   (assoc typename (types s)))  ; zde pouzivam assoc: (setq alist '((1 . "one")(2 . "two")(3 . "three"))) , (assoc 2 alist) =>  (2 . "two")
+   (assoc typename (types s)))  ; zde pouzivam assoc, ktery dela toto: (setq alist '((1 . "one")(2 . "two")(3 . "three"))) , (assoc 2 alist) =>  (2 . "two")
 
 (defmethod set-semaphore-type ((s semaphore) value)
   (if (s-type s value)
@@ -165,7 +167,10 @@ next-phase            přepne křižovatku do následujího stavu
   ((crossroads-phase :initform 0)
    (semaphores :initform '())
    (program :initform '())))
-   
+
+(defmethod crossroads-phase ((c crossroads))
+  (slot-value c 'crossroads-phase))
+
 (defmethod semaphores ((c crossroads))
   (slot-value c 'semaphores))
 
@@ -173,26 +178,8 @@ next-phase            přepne křižovatku do následujího stavu
   (slot-value c 'program))
 
 (defmethod set-program ((c crossroads) value)
-  (setf (slot-value c 'program) (repair-program c value))
+  (setf (slot-value c 'program) value)
   c)
-
-(defmethod repair-program ((c crossroads) val)
-  (mapcar (lambda (x)
-            (repair-program-phase c x))       
-          val))
-
-(defmethod repair-program-phase ((c crossroads) phase)
-  (let ((s-phase (semaphore-phases c)))
-    (append
-     (mapcar 
-      (lambda (x)
-        (if s-phase
-            (let ((p (car s-phase)))
-              (setf s-phase (cdr s-phase))
-              (if (< x p) x nil))
-          x))
-      phase)
-     (mapcar (lambda (x) x nil) s-phase))))
 
 (defmethod set-semaphores ((c crossroads) value)
   (setf (slot-value c 'semaphores) value)
@@ -201,18 +188,16 @@ next-phase            přepne křižovatku do následujího stavu
 (defmethod add-semaphore ((c crossroads) value)
   (set-semaphores c (append (semaphores c) (list value))))
 
+
+(defmethod phase-count ((c crossroads))
+   (list-length (program c)))
+
 (defmethod semaphore-phases ((c crossroads))
   (mapcar (lambda (s)
             (phase-count s))
           (semaphores c)))
 
-(defmethod phase-count ((c crossroads))
-   (list-length (program c)))
-
-(defmethod crossroads-phase ((c crossroads))
-  (slot-value c 'crossroads-phase))
-
-(defmethod set-items ((c crossroads) items)
+(defmethod items ((c crossroads) items)
   (call-next-method)
   (search-semaphores c items)
   (set-program c (program c)))
@@ -228,7 +213,7 @@ next-phase            přepne křižovatku do následujího stavu
  
 (defmethod default ((c crossroads))
   (set-program c '((0 0 2 2 0 0 0 0 1 1 1 1) (0 0 2 2 0 0 0 0 0 0 0 0) (1 1 3 3 0 0 0 0 0 0 0 0) (2 2 0 0 1 1 1 1 0 0 0 0) (2 2 0 0 0 0 0 0 0 0 0 0) (3 3 1 1 0 0 0 0 0 0 0 0)))
-  (set-items c (list
+  (items c (list
                 (move (make-instance 'semaphore) 172 122)
                 (move (rotate (make-instance 'semaphore) pi (set-x (set-y (make-instance 'point) 0) 0)) 128 78)
                 (rotate (move (make-instance 'semaphore) 172 122)  (/ pi 2) (set-x (set-y (make-instance 'point) 100) 150))
@@ -261,7 +246,7 @@ next-phase            přepne křižovatku do následujího stavu
 
 (defmethod make-rectangle ((c crossroads) lt rb color)
   (let ((rect (make-instance 'polygon)))
-    (set-items rect (list 
+    (items rect (list 
                      lt
                      (set-x (set-y (make-instance 'point) (y rb)) (x lt))
                      rb
@@ -272,7 +257,7 @@ next-phase            přepne křižovatku do následujího stavu
 
 (defmethod make-transition ((c crossroads))
   (let ((pic (make-instance 'picture)))
-    (set-items pic (list
+    (items pic (list
                     (make-rectangle  c
                                      (set-x (set-y (make-instance 'point) 3) 0)
                                      (set-x (set-y (make-instance 'point) 8) 30)
@@ -316,12 +301,10 @@ next-phase            přepne křižovatku do následujího stavu
 #|
 
 (setf w (make-instance 'window))
-
+(setf s (make-instance 'semaphore))
 (setf c (make-instance 'crossroads))
 
-(setf s (make-instance 'semaphore))
-
-(set-type s :ve '(:red :yellow :blue :green) '((t t t t) (t nil nil nil) (nil t nil nil)))
+(set-type s :ve '(:red :yellow :green :blue ) '((t t t t) (t nil nil nil) (nil t nil nil)))
 
 (set-shape w c)
 (redraw w)

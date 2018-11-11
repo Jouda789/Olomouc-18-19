@@ -9,6 +9,5 @@ public class Main {
 	    for(Integer n : a) bst.add(n);
         if (bst.search(5)) System.out.print("Nasel");
         else System.out.print("Nenasel");
-	    //bst.traversal();
 	}
 }
