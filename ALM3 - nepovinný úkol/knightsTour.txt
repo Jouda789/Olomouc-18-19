@@ -1,0 +1,78 @@
+using System;
+
+class MainClass {
+   
+  static void printSolution(int[,] g, int n)  
+    { 
+        int value;         
+        for (int x = 0; x < n; x++)  
+        { 
+            for (int y = 0; y < n; y++) {
+                value = g[x, y];
+                Console.Write(value.ToString("00"));
+              Console.Write(" ");
+              }
+            Console.WriteLine(); 
+        } 
+    } 
+
+  static bool isSafe(int x, int y,  
+                       int[,] g, int n)  
+    { 
+        return (x >= 0 && x < n &&  
+                y >= 0 && y < n && 
+                g[x, y] == -1); 
+    } 
+
+  static bool solver(int x, int y, int movei, 
+                            int[,] g, int[] xMove, 
+                            int[] yMove, int n)  
+    { 
+        int next_x, next_y; 
+
+        if (movei == n * n) 
+            return true; 
+
+        for (int k = 0; k < n; k++)  
+        { 
+            next_x = x + xMove[k]; 
+            next_y = y + yMove[k]; 
+
+            if (isSafe(next_x, next_y, g, n))  
+            { 
+                g[next_x,next_y] = movei; 
+                if (solver(next_x, next_y, movei + 1, g, xMove, yMove, n)) 
+                    return true; 
+                else 
+                    g[next_x,next_y] = -1; 
+            } 
+        } 
+  
+        return false; 
+    } 
+  
+  static void solve(int n) {
+
+    int[,] grid = new int[n, n];
+
+    for(int i = 0; i < n; i++)
+     for(int j = 0; j < n; j++)
+      grid[i,j] = -1;
+    
+    grid[0,0]=0;
+
+    int[] xMove = {2, 1, -1, -2, -2, -1, 1, 2}; 
+    int[] yMove = {1, 2, 2, 1, -1, -2, -2, -1};
+ 
+    if (!solver(0, 0, 1, grid, xMove, yMove, n))  
+      Console.WriteLine("Solution does not exist"); 
+    else
+      printSolution(grid, n); 
+  }
+
+  public static void Main (string[] args) {
+    int n;
+    n = Console.Read();
+    solve(n);
+  }
+}
